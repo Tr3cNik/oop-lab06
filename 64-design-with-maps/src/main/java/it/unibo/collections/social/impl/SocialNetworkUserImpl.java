@@ -38,6 +38,7 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      *
      * think of what type of keys and values would best suit the requirements
      */
+    private Map<String, Collection<U>> usersGroup;
 
     /*
      * [CONSTRUCTORS]
@@ -64,12 +65,16 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      *            application
      */
     public SocialNetworkUserImpl(final String name, final String surname, final String user, final int userAge) {
-        super(null, null, null, 0);
+        super(name, surname, user, userAge);
+        this.usersGroup = new HashMap<>();
     }
 
     /*
      * 2) Define a further constructor where the age defaults to -1
      */
+    public SocialNetworkUserImpl(final String name, final String surname, final String user) {
+        super(name, surname, user, -1);
+    }
 
     /*
      * [METHODS]
@@ -78,7 +83,12 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public boolean addFollowedUser(final String circle, final U user) {
-        return false;
+        Collection<U> coll = getUsersInGroup(circle);
+        if(coll.isEmpty()) {
+            usersGroup.put(circle, coll);
+        }
+        boolean exist = coll.add(user);
+        return exist;
     }
 
     /**
@@ -88,11 +98,20 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public Collection<U> getFollowedUsersInGroup(final String groupName) {
-        return null;
+        return new HashSet<>(getUsersInGroup(groupName));
     }
 
     @Override
     public List<U> getFollowedUsers() {
-        return null;
+        List<U> list = new ArrayList<>();
+        for(Collection<U> u : usersGroup.values()) {
+            list.addAll(u);
+        }
+        return list;
+    }
+
+    private Collection<U> getUsersInGroup(final String groupName) {
+        Collection<U> coll = usersGroup.get(groupName);
+        return coll != null ? coll : new HashSet<>();
     }
 }
