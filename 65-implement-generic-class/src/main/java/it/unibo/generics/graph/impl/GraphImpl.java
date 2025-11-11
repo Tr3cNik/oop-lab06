@@ -1,5 +1,8 @@
 package it.unibo.generics.graph.impl;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -11,14 +14,10 @@ import it.unibo.generics.graph.api.Graph;
 
 public class GraphImpl<N> implements Graph<N> {
 
-    private Set<N> nodes;
     private Map<N, Set<N>> edges;
-    private Set<N> reachedNodes;
 
-    public GraphImpl(Set<N> node, Map<N, Set<N>> edge) {
-        this.nodes = new TreeSet<>();
-        this.edges = new TreeMap<>();
-        this.reachedNodes = new TreeSet<>();
+    public GraphImpl(Map<N, Set<N>> edge) {
+        this.edges = new HashMap<>();
     }
 
     /**
@@ -29,8 +28,8 @@ public class GraphImpl<N> implements Graph<N> {
      */
     @Override
     public void addNode(N node) {
-        if(!(nodes.contains(node) && node.equals(null))) {
-            nodes.add(node);
+        if(!(node.equals(null))) {
+            edges.put(node, new HashSet<>());
         }
     }
 
@@ -45,8 +44,7 @@ public class GraphImpl<N> implements Graph<N> {
     @Override
     public void addEdge(N source, N target) {
         if(!(source.equals(null) && target.equals(null))) {
-            reachedNodes.add(target);
-            edges.putIfAbsent(source, reachedNodes);
+            edges.get(source).add(target);
         }
     }
 
@@ -55,7 +53,7 @@ public class GraphImpl<N> implements Graph<N> {
      */
     @Override
     public Set<N> nodeSet() {
-        return this.nodes;
+        return new HashSet<>(edges.keySet());
     }
 
     /**
@@ -67,13 +65,7 @@ public class GraphImpl<N> implements Graph<N> {
      */
     @Override
     public Set<N> linkedNodes(N node) {
-        Set<N> linkedNds = new TreeSet<>();
-        for(N n: nodes) {
-            if(edges.get(node).contains(n)) {
-                linkedNds.add(n);
-            }
-        }
-        return linkedNds;
+        return new HashSet<>(edges.get(node));
     }
 
     /**
@@ -88,11 +80,6 @@ public class GraphImpl<N> implements Graph<N> {
     @Override
     public List<N> getPath(N source, N target) {
         List<N> list = new LinkedList<>();
-        for(N n: nodes) {
-            if(edges.containsValue(source) && edges.containsValue(target)) {
-                list.add(n);
-            }
-        }
         return list;
     }
 }
