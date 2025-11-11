@@ -1,10 +1,10 @@
 package it.unibo.generics.graph.impl;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import it.unibo.generics.graph.api.Graph;
@@ -12,11 +12,13 @@ import it.unibo.generics.graph.api.Graph;
 public class GraphImpl<N> implements Graph<N> {
 
     private Set<N> nodes;
-    private Map<N, N> edges;
+    private Map<N, Set<N>> edges;
+    private Set<N> reachedNodes;
 
-    public GraphImpl(Set<N> node, Map<N, N> edge) {
+    public GraphImpl(Set<N> node, Map<N, Set<N>> edge) {
         this.nodes = new TreeSet<>();
-        this.edges = new HashMap<>();
+        this.edges = new TreeMap<>();
+        this.reachedNodes = new TreeSet<>();
     }
 
     /**
@@ -27,7 +29,7 @@ public class GraphImpl<N> implements Graph<N> {
      */
     @Override
     public void addNode(N node) {
-        if(!(nodes.contains(node) && node.equals(null)) ) {
+        if(!(nodes.contains(node) && node.equals(null))) {
             nodes.add(node);
         }
     }
@@ -43,7 +45,8 @@ public class GraphImpl<N> implements Graph<N> {
     @Override
     public void addEdge(N source, N target) {
         if(!(source.equals(null) && target.equals(null))) {
-            edges.put(source, target);
+            reachedNodes.add(target);
+            edges.putIfAbsent(source, reachedNodes);
         }
     }
 
@@ -66,7 +69,7 @@ public class GraphImpl<N> implements Graph<N> {
     public Set<N> linkedNodes(N node) {
         Set<N> linkedNds = new TreeSet<>();
         for(N n: nodes) {
-            if(edges.containsValue(node)) {
+            if(edges.get(node).contains(n)) {
                 linkedNds.add(n);
             }
         }
